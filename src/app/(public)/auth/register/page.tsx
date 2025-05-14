@@ -1,24 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
-import { AppIDB } from "@/lib/idb";
+import { useIDB } from "@/hooks/useIDB";
 
 export default function Register(): React.ReactNode {
-  const [idbInstance, setIdbInstance] = useState<AppIDB | null>(null);
+  const { idbInstance } = useIDB();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  useEffect(() => {
-    if (!idbInstance) {
-      setIdbInstance(new AppIDB());
-    }
-  }, [idbInstance]);
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -69,12 +69,13 @@ export class AppIDB {
       const transaction = this.db.transaction(["users", "notes"], "readonly");
 
       transaction.oncomplete = (event) => {
-        console.log("All done!", event);
+        console.log("getData() - All done!", event);
       };
 
       transaction.onerror = (event) => {
         // Don't forget to handle errors!
-        console.error("Transaction error", event);
+        const error = (event.target as IDBTransaction).error;
+        console.error("getData() - Transaction error", error);
       };
 
       const objectStore = transaction.objectStore(storeName);
@@ -97,12 +98,13 @@ export class AppIDB {
       const transaction = this.db.transaction(["users", "notes"], "readwrite");
 
       transaction.oncomplete = (event) => {
-        console.log("All done!", event);
+        console.log("addData() - All done!", event);
       };
 
       transaction.onerror = (event) => {
         // Don't forget to handle errors!
-        console.error("Transaction error", event);
+        const error = (event.target as IDBTransaction).error;
+        console.error("addData() - Transaction error", error);
       };
 
       const objectStore = transaction.objectStore(storeName);
@@ -125,12 +127,13 @@ export class AppIDB {
       const transaction = this.db.transaction(["users", "notes"], "readwrite");
 
       transaction.oncomplete = (event) => {
-        console.log("All done!", event);
+        console.log("removeData() - All done!", event);
       };
 
       transaction.onerror = (event) => {
         // Don't forget to handle errors!
-        console.error("Transaction error", event);
+        const error = (event.target as IDBTransaction).error;
+        console.error("removeData() - Transaction error", error);
       };
 
       const objectStore = transaction.objectStore(storeName);
