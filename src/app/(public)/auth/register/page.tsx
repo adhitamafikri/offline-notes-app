@@ -1,15 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
+import { AppIDB } from "@/lib/idb";
 
 export default function Register(): React.ReactNode {
+  const [idbInstance, setIdbInstance] = useState<AppIDB | null>(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if (!idbInstance) {
+      setIdbInstance(new AppIDB());
+    }
+  }, [idbInstance]);
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,7 +31,19 @@ export default function Register(): React.ReactNode {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    register(formData);
+
+    const payload = {
+      ...formData,
+      userId: `usr-${uuidv4()}`,
+    };
+
+    // store into the IDB
+    if (idbInstance) {
+      idbInstance.addData("users", payload);
+    }
+
+    // send to backend API
+    register(payload);
   };
 
   return (
