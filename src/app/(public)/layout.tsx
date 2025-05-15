@@ -1,3 +1,5 @@
+import { Toaster } from "@/components/ui/sonner";
+
 export default function PublicLayout({
   children,
 }: Readonly<{
@@ -7,6 +9,7 @@ export default function PublicLayout({
     <div>
       <h1>Public Layout</h1>
       {children}
+      <Toaster />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
@@ -38,6 +39,8 @@ export default function Register(): React.ReactNode {
 
     // send to backend API
     register(payload);
+
+    toast.success("Registration Success");
   };
 
   return (
