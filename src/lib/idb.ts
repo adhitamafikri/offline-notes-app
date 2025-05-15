@@ -33,7 +33,7 @@ export class AppIDB {
 
       this.db = db;
       const usersObjectStore = db.createObjectStore("users", {
-        keyPath: "userId",
+        keyPath: "email",
       });
       const notesObjectStore = db.createObjectStore("notes", {
         keyPath: "noteId",
@@ -60,14 +60,13 @@ export class AppIDB {
     return this.getInstance().dbVersion;
   }
 
-  getData(storeName: string): Promise<void> {
+  getData<T>(storeName: string): Promise<T[]> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return reject("Database not initialized");
       }
 
       const transaction = this.db.transaction(["users", "notes"], "readonly");
-
       transaction.oncomplete = (event) => {
         console.log("getData() - All done!", event);
       };
@@ -84,7 +83,8 @@ export class AppIDB {
         // event.target.result === customer.ssn;
         console.log("successfully added data", event);
         console.log(storeName, "\nvalue:", event.target);
-        resolve();
+        const result = (event.target as IDBRequest).result;
+        resolve(result as T[]);
       };
     });
   }
@@ -96,7 +96,6 @@ export class AppIDB {
       }
 
       const transaction = this.db.transaction(["users", "notes"], "readwrite");
-
       transaction.oncomplete = (event) => {
         console.log("addData() - All done!", event);
       };
@@ -118,30 +117,76 @@ export class AppIDB {
     });
   }
 
-  removeData<T extends IDBKeyRange>(storeName: string, data: T): Promise<void> {
+  updateData<T>(
+    storeName: string,
+    keyPath: string,
+    data: T
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return reject("Database not initialized");
       }
 
       const transaction = this.db.transaction(["users", "notes"], "readwrite");
-
       transaction.oncomplete = (event) => {
-        console.log("removeData() - All done!", event);
+        console.log("updateData() - All done!", event);
       };
 
       transaction.onerror = (event) => {
         // Don't forget to handle errors!
         const error = (event.target as IDBTransaction).error;
-        console.error("removeData() - Transaction error", error);
+        console.error("updateData() - Transaction error", error);
       };
 
       const objectStore = transaction.objectStore(storeName);
-      const request = objectStore.delete(data);
+      const request = objectStore.get(keyPath);
+      // const request = objectStore.add(data);
+      request.onsuccess = (event) => {
+        console.log("updateData() - onsuccess get", event);
+        // event.target.result === customer.ssn;
+        const retrievedData = (event.target as IDBRequest).result;
+        const updatedData = {
+          ...retrievedData,
+          ...data,
+        };
+        const requestUpdate = objectStore.put(updatedData);
+        requestUpdate.onsuccess = (event) => {
+          console.log("successfully updated data", event);
+          console.log(storeName, "\nvalue:", data);
+          resolve();
+        };
+
+        requestUpdate.onerror = (event) => {
+          console.error("Error updating data", event);
+          reject("Error updating data");
+        };
+      };
+    });
+  }
+
+  deleteData(storeName: string, keyPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.db) {
+        return reject("Database not initialized");
+      }
+
+      const transaction = this.db.transaction(["users", "notes"], "readwrite");
+      transaction.oncomplete = (event) => {
+        console.log("deleteData() - All done!", event);
+      };
+
+      transaction.onerror = (event) => {
+        // Don't forget to handle errors!
+        const error = (event.target as IDBTransaction).error;
+        console.error("deleteData() - Transaction error", error);
+      };
+
+      const objectStore = transaction.objectStore(storeName);
+      const request = objectStore.delete(keyPath);
       request.onsuccess = (event) => {
         // event.target.result === customer.ssn;
         console.log("successfully removed data", event);
-        console.log(storeName, "\nvalue:", data);
+        console.log(storeName, "\nvalue:", keyPath);
         resolve();
       };
     });
