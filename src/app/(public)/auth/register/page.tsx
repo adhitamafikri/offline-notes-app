@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,6 @@ export default function Register(): React.ReactNode {
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("field changed", name, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -25,22 +25,28 @@ export default function Register(): React.ReactNode {
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
 
-    const payload = {
-      ...formData,
-      userId: `usr-${uuidv4()}`,
-    };
+      const payload = {
+        ...formData,
+        userId: `usr-${uuidv4()}`,
+      };
 
-    // store into the IDB
-    if (idbInstance) {
-      idbInstance.addData("users", payload);
+      // store into the IDB
+      if (idbInstance) {
+        idbInstance.addData("users", payload);
+      }
+
+      // send to backend API
+      register(payload);
+
+      toast.success("Registration Success");
+      return redirect("/auth/login");
+    } catch (error) {
+      console.error("Registration Failed:", error);
+      toast.error("Registration Failed");
     }
-
-    // send to backend API
-    register(payload);
-
-    toast.success("Registration Success");
   };
 
   return (

@@ -12,7 +12,11 @@ export function useIDB() {
     }
   }, [idbInstance]);
 
-  const getData = async <T,>({ storeName }: { storeName: string }) => {
+  const getData = async <T,>({
+    storeName,
+  }: {
+    storeName: string;
+  }): Promise<T[] | undefined> => {
     if (!idbInstance) {
       console.error("IDB instance is not initialized");
       return [];
@@ -20,6 +24,26 @@ export function useIDB() {
 
     try {
       const result = await idbInstance.getData<T>(storeName);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const getDataByKeyPath = async <T,>({
+    storeName,
+    keyPath,
+  }: {
+    storeName: string;
+    keyPath: string;
+  }): Promise<T | undefined> => {
+    if (!idbInstance) {
+      console.error("IDB instance is not initialized");
+      return undefined;
+    }
+
+    try {
+      const result = await idbInstance.getDataByKeyPath<T>(storeName, keyPath);
       return result;
     } catch (error) {
       throw error;
@@ -85,5 +109,12 @@ export function useIDB() {
     }
   };
 
-  return { idbInstance, getData, addData, updateData, deleteData };
+  return {
+    idbInstance,
+    getData,
+    getDataByKeyPath,
+    addData,
+    updateData,
+    deleteData,
+  };
 }

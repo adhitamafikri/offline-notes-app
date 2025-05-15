@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { register } from "@/app/actions/auth";
+import { login } from "@/app/actions/auth";
+import { useIDB } from "@/hooks/useIDB";
 
 export default function Login(): React.ReactNode {
+  const { idbInstance } = useIDB();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -13,16 +16,33 @@ export default function Login(): React.ReactNode {
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("field changed", name, value);
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    register(formData);
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+
+      // store into the IDB
+      if (idbInstance) {
+        const result = await idbInstance.getDataByKeyPath(
+          "users",
+          formData.email
+        );
+        console.log("IDB Result:", result);
+      }
+
+      // send to backend API
+      login(formData);
+
+      toast.success("Login Success");
+    } catch (error) {
+      console.error("Login Failed:", error);
+      toast.error("Login Failed");
+    }
   };
 
   return (
@@ -33,12 +53,12 @@ export default function Login(): React.ReactNode {
       <h1>Login to PWA Notes</h1>
       <form
         name="login-form"
-        className="flex flex-col items-center justify-center gap-4"
+        className="w-1/2 flex flex-col items-center justify-center gap-4"
         autoComplete="off"
         onSubmit={onSubmit}
       >
         <Input
-          placeholder="your Email"
+          placeholder="Your Email"
           name="email"
           defaultValue={formData.email}
           onChange={onFieldChange}

@@ -60,7 +60,7 @@ export class AppIDB {
     return this.getInstance().dbVersion;
   }
 
-  getData<T>(storeName: string): Promise<T[]> {
+  getData<T>(storeName: string): Promise<T[] | undefined> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return reject("Database not initialized");
@@ -81,10 +81,50 @@ export class AppIDB {
       const request = objectStore.getAll();
       request.onsuccess = (event) => {
         // event.target.result === customer.ssn;
-        console.log("successfully added data", event);
-        console.log(storeName, "\nvalue:", event.target);
+        console.log("successfully get data");
+        console.log(storeName, event.target);
         const result = (event.target as IDBRequest).result;
-        resolve(result as T[]);
+
+        if (!result) {
+          return reject("Data not found");
+        }
+        return resolve(result as T[]);
+      };
+    });
+  }
+
+  getDataByKeyPath<T>(
+    storeName: string,
+    keyPath: string
+  ): Promise<T | undefined> {
+    console.log("idb getDataByKeyPath", storeName, keyPath);
+    return new Promise((resolve, reject) => {
+      if (!this.db) {
+        return reject("Database not initialized");
+      }
+
+      const transaction = this.db.transaction(["users", "notes"], "readonly");
+      transaction.oncomplete = (event) => {
+        console.log("getDataByKeyPath() - All done!", event);
+      };
+
+      transaction.onerror = (event) => {
+        // Don't forget to handle errors!
+        const error = (event.target as IDBTransaction).error;
+        console.error("getDataByKeyPath() - Transaction error", error);
+      };
+
+      const objectStore = transaction.objectStore(storeName);
+      const request = objectStore.get(keyPath);
+      request.onsuccess = (event) => {
+        // event.target.result === customer.ssn;
+        console.log("successfully get data by keypath");
+        console.log(storeName, event.target);
+        const result = (event.target as IDBRequest).result;
+        if (!result) {
+          return reject("Data not found");
+        }
+        return resolve(result as T);
       };
     });
   }
@@ -110,18 +150,14 @@ export class AppIDB {
       const request = objectStore.add(data);
       request.onsuccess = (event) => {
         // event.target.result === customer.ssn;
-        console.log("successfully added data", event);
-        console.log(storeName, "\nvalue:", data);
+        console.log("successfully get data by keypath");
+        console.log(storeName, event.target);
         resolve();
       };
     });
   }
 
-  updateData<T>(
-    storeName: string,
-    keyPath: string,
-    data: T
-  ): Promise<void> {
+  updateData<T>(storeName: string, keyPath: string, data: T): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return reject("Database not initialized");
@@ -151,8 +187,8 @@ export class AppIDB {
         };
         const requestUpdate = objectStore.put(updatedData);
         requestUpdate.onsuccess = (event) => {
-          console.log("successfully updated data", event);
-          console.log(storeName, "\nvalue:", data);
+          console.log("successfully update data");
+          console.log(storeName, event.target);
           resolve();
         };
 
@@ -185,8 +221,8 @@ export class AppIDB {
       const request = objectStore.delete(keyPath);
       request.onsuccess = (event) => {
         // event.target.result === customer.ssn;
-        console.log("successfully removed data", event);
-        console.log(storeName, "\nvalue:", keyPath);
+        console.log("successfully delete data");
+        console.log(storeName, event.target);
         resolve();
       };
     });
