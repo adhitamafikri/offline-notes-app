@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { register } from "@/app/actions/auth";
 import { useIDB } from "@/hooks/useIDB";
 
 export default function Register(): React.ReactNode {
+  const router = useRouter();
   const { idbInstance } = useIDB();
   const [formData, setFormData] = useState({
     email: "",
@@ -42,7 +43,7 @@ export default function Register(): React.ReactNode {
       register(payload);
 
       toast.success("Registration Success");
-      return redirect("/auth/login");
+      return router.push("/auth/login");
     } catch (error) {
       console.error("Registration Failed:", error);
       toast.error("Registration Failed");
