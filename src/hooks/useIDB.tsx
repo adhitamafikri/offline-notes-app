@@ -50,7 +50,7 @@ export function useIDB() {
     }
   };
 
-  const addData = async <T,>({
+  const addData = async <T, U>({
     storeName,
     data,
   }: {
@@ -63,7 +63,7 @@ export function useIDB() {
     }
 
     try {
-      await idbInstance.addData<T>(storeName, data);
+      await idbInstance.addData<T, U>(storeName, data);
     } catch (error) {
       throw error;
     }

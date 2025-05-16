@@ -8,11 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
 import { useIDB } from "@/hooks/useIDB";
+import { User } from "@/types/user";
+
+interface IFormData {
+  email: string;
+  password: string;
+}
 
 export default function Register(): React.ReactNode {
   const router = useRouter();
   const { idbInstance } = useIDB();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IFormData>({
     email: "",
     password: "",
   });
@@ -25,7 +31,7 @@ export default function Register(): React.ReactNode {
     }));
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
 
@@ -36,12 +42,15 @@ export default function Register(): React.ReactNode {
 
       // store into the IDB
       if (idbInstance) {
-        idbInstance.addData("users", payload);
+        const result = await idbInstance.addData<IFormData, User>(
+          "users",
+          payload
+        );
+        console.log("IDB Result:", result);
       }
 
       // send to backend API
       register(payload);
-
       toast.success("Registration Success");
       return router.push("/auth/login");
     } catch (error) {

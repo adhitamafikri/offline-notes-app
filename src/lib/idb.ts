@@ -84,11 +84,7 @@ export class AppIDB {
         console.log("successfully get data");
         console.log(storeName, event.target);
         const result = (event.target as IDBRequest).result;
-
-        if (!result) {
-          return reject("Data not found");
-        }
-        return resolve(result as T[]);
+        return resolve(result);
       };
     });
   }
@@ -121,15 +117,12 @@ export class AppIDB {
         console.log("successfully get data by keypath");
         console.log(storeName, event.target);
         const result = (event.target as IDBRequest).result;
-        if (!result) {
-          return reject("Data not found");
-        }
-        return resolve(result as T);
+        return resolve(result);
       };
     });
   }
 
-  addData<T>(storeName: string, data: T): Promise<void> {
+  addData<T, U>(storeName: string, data: T): Promise<U | undefined> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         return reject("Database not initialized");
@@ -150,9 +143,10 @@ export class AppIDB {
       const request = objectStore.add(data);
       request.onsuccess = (event) => {
         // event.target.result === customer.ssn;
-        console.log("successfully get data by keypath");
+        console.log("successfully add data");
         console.log(storeName, event.target);
-        resolve();
+        const result = (event.target as IDBRequest).result;
+        return resolve(result);
       };
     });
   }

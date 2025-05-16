@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { v4 as uuidv4 } from "uuid";
 import { RegisterRequest, LoginRequest } from "@/types/dto/auth";
 
 export async function register(body: RegisterRequest) {
@@ -8,4 +10,6 @@ export async function register(body: RegisterRequest) {
 
 export async function login(body: LoginRequest) {
   console.log("login", body);
+  const cookieStore = await cookies();
+  cookieStore.set("access_token", `actok-${uuidv4()}`);
 }

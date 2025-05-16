@@ -6,10 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/app/actions/auth";
 import { useIDB } from "@/hooks/useIDB";
+import { User } from "@/types/user";
+
+interface IFormData {
+  email: string;
+  password: string;
+}
 
 export default function Login(): React.ReactNode {
   const { idbInstance } = useIDB();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IFormData>({
     email: "",
     password: "",
   });
@@ -26,19 +32,24 @@ export default function Login(): React.ReactNode {
     try {
       e.preventDefault();
 
-      // store into the IDB
+      // check into the IDB
       if (idbInstance) {
-        const result = await idbInstance.getDataByKeyPath(
+        const result = await idbInstance.getDataByKeyPath<User>(
           "users",
           formData.email
         );
         console.log("IDB Result:", result);
+
+        if (result) {
+          if (result.password === formData.password) {
+            // send to backend API
+            login(formData);
+            return toast.success("Login Success");
+          }
+          return toast.error("Login Failed");
+        }
+        return toast.error("Login Failed");
       }
-
-      // send to backend API
-      login(formData);
-
-      toast.success("Login Success");
     } catch (error) {
       console.error("Login Failed:", error);
       toast.error("Login Failed");
