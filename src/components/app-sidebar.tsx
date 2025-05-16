@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar,
   SidebarHeader,
@@ -13,8 +15,18 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Note } from "@/models/note";
 
 export function AppSidebar() {
+  const onCreateNewNote = () => {
+    const newNote = new Note({
+      title: "Untitled Note",
+      content: "",
+      footNote: "",
+      userId,
+    });
+  };
+
   return (
     <Sidebar>
       <SidebarHeader>
