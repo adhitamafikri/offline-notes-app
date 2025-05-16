@@ -1,5 +1,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  Sidebar,
+} from "@/components/ui/sidebar";
 
 export default async function PrivateLayout({
   children,
@@ -13,8 +18,15 @@ export default async function PrivateLayout({
 
   return (
     <div id="private-layout">
-      <h1>Private Layout</h1>
-      {children}
+      <SidebarProvider>
+        <div className="page-sidebar">
+          <Sidebar />
+        </div>
+        <div className="page-content w-full">
+          <SidebarTrigger />
+          {children}
+        </div>
+      </SidebarProvider>
     </div>
   );
 }
