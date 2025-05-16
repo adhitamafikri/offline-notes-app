@@ -6,7 +6,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div>
+    <div id="public-layout">
       <h1>Public Layout</h1>
       {children}
       <Toaster />

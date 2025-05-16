@@ -12,7 +12,7 @@ export default async function PrivateLayout({
   }
 
   return (
-    <div>
+    <div id="private-layout">
       <h1>Private Layout</h1>
       {children}
     </div>

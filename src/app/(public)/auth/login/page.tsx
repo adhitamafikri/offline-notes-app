@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface IFormData {
 }
 
 export default function Login(): React.ReactNode {
+  const router = useRouter();
   const { idbInstance } = useIDB();
   const [formData, setFormData] = useState<IFormData>({
     email: "",
@@ -44,7 +46,8 @@ export default function Login(): React.ReactNode {
           if (result.password === formData.password) {
             // send to backend API
             login(formData);
-            return toast.success("Login Success");
+            toast.success("Login Success");
+            return router.push("/");
           }
           return toast.error("Login Failed");
         }
