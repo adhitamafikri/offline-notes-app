@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
-import { useIDB } from "@/hooks/useIDB";
+import { useIDB } from "@/hooks/use-idb";
 import { User } from "@/types/user";
 
 interface IFormData {
