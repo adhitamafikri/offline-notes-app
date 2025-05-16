@@ -1,10 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  SidebarProvider,
-  SidebarTrigger,
-  Sidebar,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export default async function PrivateLayout({
   children,
@@ -20,7 +17,7 @@ export default async function PrivateLayout({
     <div id="private-layout">
       <SidebarProvider>
         <div className="page-sidebar">
-          <Sidebar />
+          <AppSidebar />
         </div>
         <div className="page-content w-full">
           <SidebarTrigger />
