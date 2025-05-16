@@ -15,7 +15,7 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Note } from "@/models/note";
+import { Note } from "@/models/Note";
 
 export function AppSidebar() {
   const onCreateNewNote = () => {
