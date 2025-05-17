@@ -1,3 +1,8 @@
+/**
+ * @notes
+ * Use the pouch-db.ts lib instead
+ */
+
 export class AppIDB {
   private dbName = "pwa-notes-app";
   private dbVersion = 1;

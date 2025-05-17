@@ -1,3 +1,7 @@
+/**
+ * @notes
+ * Use the user-pouchdb.ts hook instead
+ */
 "use client";
 
 import { AppIDB } from "@/lib/idb";
@@ -12,7 +16,7 @@ export function useIDB() {
     }
   }, [idbInstance]);
 
-  const getData = async <T,>({
+  const getData = async <T>({
     storeName,
   }: {
     storeName: string;
@@ -30,7 +34,7 @@ export function useIDB() {
     }
   };
 
-  const getDataByKeyPath = async <T,>({
+  const getDataByKeyPath = async <T>({
     storeName,
     keyPath,
   }: {
@@ -69,7 +73,7 @@ export function useIDB() {
     }
   };
 
-  const updateData = async <T,>({
+  const updateData = async <T>({
     storeName,
     keyPath,
     data,

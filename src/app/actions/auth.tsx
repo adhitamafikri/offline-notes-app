@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
-import { RegisterRequest, LoginRequest } from "@/types/dto/auth";
+import { RegisterRequest, LoginRequest } from "@/models/dto/Auth";
 
 export async function register(body: RegisterRequest) {
   console.log("register", body);
