@@ -7,8 +7,9 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
-import { useIDB } from "@/hooks/use-idb";
-import { User } from "@/types/user";
+// import { useIDB } from "@/hooks/use-idb";
+import { usePouchDB } from "@/hooks/use-pouchdb";
+// import { User } from "@/types/user";
 
 interface IFormData {
   email: string;
@@ -17,11 +18,14 @@ interface IFormData {
 
 export default function Register(): React.ReactNode {
   const router = useRouter();
-  const { idbInstance } = useIDB();
+  const { getDBInfo } = usePouchDB();
+  // const { idbInstance } = useIDB();
   const [formData, setFormData] = useState<IFormData>({
     email: "",
     password: "",
   });
+
+  getDBInfo();
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,13 +45,13 @@ export default function Register(): React.ReactNode {
       };
 
       // store into the IDB
-      if (idbInstance) {
-        const result = await idbInstance.addData<IFormData, User>(
-          "users",
-          payload
-        );
-        console.log("IDB Result:", result);
-      }
+      // if (idbInstance) {
+      //   const result = await idbInstance.addData<IFormData, User>(
+      //     "users",
+      //     payload
+      //   );
+      //   console.log("IDB Result:", result);
+      // }
 
       // send to backend API
       register(payload);
