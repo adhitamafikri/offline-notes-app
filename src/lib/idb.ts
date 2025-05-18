@@ -1,6 +1,8 @@
 /**
- * @notes
- * Use the pouch-db.ts lib instead
+ * @notes - NOT USED ANYMORE
+ * Use these instead:
+ * - pouchdb.context.ts
+ * - use-pouchdb.ts
  */
 
 export class AppIDB {

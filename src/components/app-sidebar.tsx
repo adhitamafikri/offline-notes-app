@@ -15,16 +15,21 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { usePouchDB } from "@/hooks/use-pouchdb";
 import { Note } from "@/models/Note";
 
 export function AppSidebar() {
+  const { pouchDB } = usePouchDB();
+
   const onCreateNewNote = () => {
     const newNote = new Note({
       title: "Untitled Note",
       content: "",
       footNote: "",
-      userId,
+      userId: "",
     });
+
+    console.log("onCreateNewNote click: ", newNote);
   };
 
   return (
@@ -50,6 +55,22 @@ export function AppSidebar() {
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>
             </SidebarMenuSub>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Default Action Group */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  key="sidebar-menu-create-note-cta"
+                  onClick={onCreateNewNote}
+                >
+                  <p>Create New Note</p>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

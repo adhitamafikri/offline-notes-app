@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { PouchDBProvider } from "@/contexts/pouchdb.context";
 
 export default async function PrivateLayout({
   children,
@@ -15,15 +16,17 @@ export default async function PrivateLayout({
 
   return (
     <div id="private-layout">
-      <SidebarProvider>
-        <div className="page-sidebar">
-          <AppSidebar />
-        </div>
-        <div className="page-content w-full">
-          <SidebarTrigger />
-          {children}
-        </div>
-      </SidebarProvider>
+      <PouchDBProvider>
+        <SidebarProvider>
+          <div className="page-sidebar">
+            <AppSidebar />
+          </div>
+          <div className="page-content w-full">
+            <SidebarTrigger />
+            {children}
+          </div>
+        </SidebarProvider>
+      </PouchDBProvider>
     </div>
   );
 }

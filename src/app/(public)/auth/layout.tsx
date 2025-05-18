@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { PouchDBProvider } from "@/contexts/pouch-db.context";
+import { PouchDBProvider } from "@/contexts/pouchdb.context";
 
 export default async function AuthLayout({
   children,

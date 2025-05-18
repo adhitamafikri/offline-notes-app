@@ -1,6 +1,8 @@
 /**
- * @notes
- * Use the user-pouchdb.ts hook instead
+ * @notes - NOT USED ANYMORE
+ * Use these instead:
+ * - pouchdb.context.ts
+ * - use-pouchdb.ts
  */
 "use client";
 

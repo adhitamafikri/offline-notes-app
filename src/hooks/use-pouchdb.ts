@@ -4,7 +4,7 @@ import { useContext } from "react";
 import {
   PouchDBContext,
   type IPouchDBContext,
-} from "@/contexts/pouch-db.context";
+} from "@/contexts/pouchdb.context";
 
 export function usePouchDB(): { pouchDB: IPouchDBContext } {
   const pouchDB = useContext<IPouchDBContext | undefined>(PouchDBContext);
