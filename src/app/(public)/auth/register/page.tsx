@@ -7,25 +7,19 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
-// import { useIDB } from "@/hooks/use-idb";
 import { usePouchDB } from "@/hooks/use-pouchdb";
-// import { User } from "@/types/user";
+import { User } from "@/models/User";
 
-interface IFormData {
-  email: string;
-  password: string;
-}
+type IFormData = Omit<User, "userId">;
 
 export default function Register(): React.ReactNode {
   const router = useRouter();
-  const { getDBInfo } = usePouchDB();
-  // const { idbInstance } = useIDB();
+  const { pouchDB } = usePouchDB();
   const [formData, setFormData] = useState<IFormData>({
     email: "",
+    name: "",
     password: "",
   });
-
-  getDBInfo();
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -39,22 +33,18 @@ export default function Register(): React.ReactNode {
     try {
       e.preventDefault();
 
-      const payload = {
+      const id = `usr-${uuidv4()}`;
+      const payload: User & { _id: string } = {
         ...formData,
-        userId: `usr-${uuidv4()}`,
+        userId: id,
+        _id: id,
       };
 
       // store into the IDB
-      // if (idbInstance) {
-      //   const result = await idbInstance.addData<IFormData, User>(
-      //     "users",
-      //     payload
-      //   );
-      //   console.log("IDB Result:", result);
-      // }
-
+      await pouchDB.addData<IFormData, User>(payload, "user");
       // send to backend API
       register(payload);
+
       toast.success("Registration Success");
       return router.push("/auth/login");
     } catch (error) {
@@ -78,7 +68,15 @@ export default function Register(): React.ReactNode {
         <Input
           placeholder="Your Email"
           name="email"
+          type="email"
           defaultValue={formData.email}
+          onChange={onFieldChange}
+          required
+        />
+        <Input
+          placeholder="Your Name"
+          name="name"
+          defaultValue={formData.name}
           onChange={onFieldChange}
           required
         />

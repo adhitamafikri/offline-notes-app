@@ -1,25 +1,20 @@
 "use client";
 
-import { useRef } from "react";
-import { IAppPouchDB } from "@/models/PouchDB";
+import { useContext } from "react";
+import {
+  PouchDBContext,
+  type IPouchDBContext,
+} from "@/contexts/pouch-db.context";
 
-export function usePouchDB() {
-  const pouchDBRef = useRef<IAppPouchDB>(null);
-
-  const loadPouchDB = async () => {
-    if (!pouchDBRef.current) {
-      const { AppPouchDB } = await import("@/lib/pouch-db");
-      pouchDBRef.current = AppPouchDB;
-    }
-    return pouchDBRef.current as IAppPouchDB;
-  };
-
-  const getDBInfo = async () => {
-    const db = await loadPouchDB();
-    db.getDBInfo();
-  };
+export function usePouchDB(): { pouchDB: IPouchDBContext } {
+  const pouchDB = useContext<IPouchDBContext | undefined>(PouchDBContext);
+  if (pouchDB === undefined) {
+    throw new Error(
+      "PouchDBContext should be used inside the <PouchDBProvider />"
+    );
+  }
 
   return {
-    getDBInfo,
+    pouchDB,
   };
 }
