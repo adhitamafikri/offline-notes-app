@@ -1,21 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { v4 as uuidv4 } from "uuid";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/app/actions/auth";
-import { usePouchDB } from "@/hooks/use-pouchdb";
-import { User } from "@/models/User";
-
-type IFormData = Omit<User, "userId">;
+import { useAuth } from "@/hooks/use-auth";
+import type { IRegisterFormData } from "@/contexts/auth.context";
 
 export default function Register(): React.ReactNode {
-  const router = useRouter();
-  const { pouchDB } = usePouchDB();
-  const [formData, setFormData] = useState<IFormData>({
+  const { auth } = useAuth();
+  const [formData, setFormData] = useState<IRegisterFormData>({
     email: "",
     name: "",
     password: "",
@@ -30,27 +24,8 @@ export default function Register(): React.ReactNode {
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-
-      const id = `usr-${uuidv4()}`;
-      const payload: User & { _id: string } = {
-        ...formData,
-        userId: id,
-        _id: id,
-      };
-
-      // store into the IDB
-      await pouchDB.addData<IFormData, User>(payload, "user");
-      // send to backend API
-      register(payload);
-
-      toast.success("Registration Success");
-      return router.push("/auth/login");
-    } catch (error) {
-      console.error("Registration Failed:", error);
-      toast.error("Registration Failed");
-    }
+    e.preventDefault();
+    auth.register(formData, register);
   };
 
   return (

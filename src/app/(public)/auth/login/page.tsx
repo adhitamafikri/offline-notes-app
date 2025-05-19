@@ -1,23 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/app/actions/auth";
-import { User } from "@/models/User";
-import { usePouchDB } from "@/hooks/use-pouchdb";
-
-interface IFormData {
-  email: string;
-  password: string;
-}
+import { useAuth } from "@/hooks/use-auth";
+import type { ILoginFormData } from "@/contexts/auth.context";
 
 export default function Login(): React.ReactNode {
-  const router = useRouter();
-  const { pouchDB } = usePouchDB();
-  const [formData, setFormData] = useState<IFormData>({
+  const { auth } = useAuth();
+  const [formData, setFormData] = useState<ILoginFormData>({
     email: "",
     password: "",
   });
@@ -31,29 +23,8 @@ export default function Login(): React.ReactNode {
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-
-      // check into the IDB
-      const result = await pouchDB.findData<User>({
-        selector: { email: formData.email },
-      });
-      console.log("IDB Result:", result);
-
-      if (result) {
-        if (result.password === formData.password) {
-          // send to backend API
-          login(formData);
-          toast.success("Login Success");
-          return router.push("/");
-        }
-        return toast.error("Login Failed");
-      }
-      return toast.error("Login Failed");
-    } catch (error) {
-      console.error("Login Failed:", error);
-      toast.error("Login Failed");
-    }
+    e.preventDefault();
+    auth.login(formData, login);
   };
 
   return (

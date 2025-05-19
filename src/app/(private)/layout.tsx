@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PouchDBProvider } from "@/contexts/pouchdb.context";
+import { AuthProvider } from "@/contexts/auth.context";
 
 export default async function PrivateLayout({
   children,
@@ -17,15 +18,17 @@ export default async function PrivateLayout({
   return (
     <div id="private-layout">
       <PouchDBProvider>
-        <SidebarProvider>
-          <div className="page-sidebar">
-            <AppSidebar />
-          </div>
-          <div className="page-content w-full">
-            <SidebarTrigger />
-            {children}
-          </div>
-        </SidebarProvider>
+        <AuthProvider>
+          <SidebarProvider>
+            <div className="page-sidebar">
+              <AppSidebar />
+            </div>
+            <div className="page-content w-full">
+              <SidebarTrigger />
+              {children}
+            </div>
+          </SidebarProvider>
+        </AuthProvider>
       </PouchDBProvider>
     </div>
   );

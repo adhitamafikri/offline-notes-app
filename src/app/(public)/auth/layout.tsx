@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { PouchDBProvider } from "@/contexts/pouchdb.context";
+import { AuthProvider } from "@/contexts/auth.context";
 
 export default async function AuthLayout({
   children,
@@ -14,7 +15,9 @@ export default async function AuthLayout({
 
   return (
     <div id="auth-layout">
-      <PouchDBProvider>{children}</PouchDBProvider>
+      <PouchDBProvider>
+        <AuthProvider>{children}</AuthProvider>
+      </PouchDBProvider>
     </div>
   );
 }
