@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/app/actions/auth";
@@ -8,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import type { ILoginFormData } from "@/contexts/auth.context";
 
 export default function Login(): React.ReactNode {
+  const router = useRouter();
   const { auth } = useAuth();
   const [formData, setFormData] = useState<ILoginFormData>({
     email: "",
@@ -56,6 +58,14 @@ export default function Login(): React.ReactNode {
         />
         <Button type="submit" className="w-full">
           Login
+        </Button>
+        <Button
+          type="button"
+          className="w-full"
+          variant="secondary"
+          onClick={() => router.push("/auth/register")}
+        >
+          Register
         </Button>
       </form>
     </div>
