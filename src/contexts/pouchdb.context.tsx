@@ -16,6 +16,11 @@ export interface IPouchDBContext {
     fields?: string[];
     sort?: string[];
   }) => Promise<T | null>;
+  findAllData: <T>(findOptions: {
+    selector: Record<string, unknown>;
+    fields?: string[];
+    sort?: string[];
+  }) => Promise<T[]>;
   addData: <T, R>(
     data: PouchDB.Core.PutDocument<{} & T>,
     docType: "user" | "note"
@@ -91,6 +96,25 @@ export const PouchDBProvider = ({
     []
   );
 
+  const findAllData = useCallback(
+    async <T,>(findOptions: {
+      selector: Record<string, unknown>;
+      fields?: string[];
+      sort?: string[];
+    }): Promise<T[]> => {
+      try {
+        const db = await loadPouchDB();
+        const result = await db.find(findOptions);
+        console.log("result", result);
+        return result.docs as T[];
+      } catch (error) {
+        console.error("Error finding data from PouchDB: ", error);
+        throw error;
+      }
+    },
+    []
+  );
+
   const addData = useCallback(
     async <T, R>(
       data: PouchDB.Core.PutDocument<{} & T>,
@@ -98,8 +122,9 @@ export const PouchDBProvider = ({
     ): Promise<R> => {
       try {
         const db = await loadPouchDB();
-        const result = await db.put<T>({ ...data, docType });
-        return result as R;
+        const putResult = await db.put<T>({ ...data, docType });
+        const getResult = await db.get(putResult.id);
+        return getResult as R;
       } catch (error) {
         console.error("Error adding data into PouchDB: ", error);
         throw error;
@@ -109,8 +134,8 @@ export const PouchDBProvider = ({
   );
 
   const contextValue = useMemo(
-    () => ({ getInfo, getData, findData, addData }),
-    [getInfo, getData, findData, addData]
+    () => ({ getInfo, getData, findData, findAllData, addData }),
+    [getInfo, getData, findData, findAllData, addData]
   );
 
   return (

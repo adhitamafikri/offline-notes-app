@@ -15,21 +15,13 @@ import {
   SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { usePouchDB } from "@/hooks/use-pouchdb";
-import { Note } from "@/models/Note";
+import { useNotes } from "@/hooks/use-notes";
 
 export function AppSidebar() {
-  const { pouchDB } = usePouchDB();
+  const { notes } = useNotes();
 
   const onCreateNewNote = () => {
-    const newNote = new Note({
-      title: "Untitled Note",
-      content: "",
-      footNote: "",
-      userId: "",
-    });
-
-    console.log("onCreateNewNote click: ", newNote);
+    notes.createNewNote();
   };
 
   return (

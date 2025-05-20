@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PouchDBProvider } from "@/contexts/pouchdb.context";
 import { AuthProvider } from "@/contexts/auth.context";
+import { NotesProvider } from "@/contexts/notes.context";
 
 export default async function PrivateLayout({
   children,
@@ -19,15 +20,17 @@ export default async function PrivateLayout({
     <div id="private-layout">
       <PouchDBProvider>
         <AuthProvider>
-          <SidebarProvider>
-            <div className="page-sidebar">
-              <AppSidebar />
-            </div>
-            <div className="page-content w-full">
-              <SidebarTrigger />
-              {children}
-            </div>
-          </SidebarProvider>
+          <NotesProvider>
+            <SidebarProvider>
+              <div className="page-sidebar">
+                <AppSidebar />
+              </div>
+              <div className="page-content w-full">
+                <SidebarTrigger />
+                {children}
+              </div>
+            </SidebarProvider>
+          </NotesProvider>
         </AuthProvider>
       </PouchDBProvider>
     </div>
