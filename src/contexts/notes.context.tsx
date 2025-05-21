@@ -17,6 +17,7 @@ import { Note } from "@/models/Note";
 export interface INotesContext {
   notes: Note[];
   getAllNotes: () => Promise<void>;
+  getNoteById: (noteId: string) => Promise<Note | null>;
   createNewNote: () => void;
 }
 
@@ -33,9 +34,14 @@ export const NotesProvider = ({
   const [notes, setNotes] = useState<Note[]>([]);
 
   const getAllNotes = useCallback(async (): Promise<void> => {
+    const userData = auth.getUserData();
+    if (!userData) {
+      throw new Error("User is not logged in");
+    }
+
     const result = await pouchDB.findAllData<Note>("notes", {
       selector: {
-        userId: auth.getUserData()?.userId,
+        userId: userData.userId,
         createdAt: { $exists: true },
       },
       sort: ["userId", "createdAt"],
@@ -52,6 +58,29 @@ export const NotesProvider = ({
     getAllNotes();
   }, [getAllNotes]);
 
+  const getNoteById = useCallback(
+    async (noteId: string): Promise<Note | null> => {
+      const userData = auth.getUserData();
+      if (!userData) {
+        throw new Error("User is not logged in");
+      }
+
+      const result = await pouchDB.findData<Note>("notes", {
+        selector: {
+          userId: userData.userId,
+          noteId,
+        },
+        use_index: [
+          dbConfig.notes.index.noteById.ddoc,
+          dbConfig.notes.index.noteById.name,
+        ],
+      });
+
+      return result;
+    },
+    [auth]
+  );
+
   const createNewNote = useCallback(async () => {
     try {
       const userData = auth.getUserData();
@@ -67,11 +96,8 @@ export const NotesProvider = ({
         userId: userData?.userId || "",
       });
 
-      console.log("onCreateNewNote click: ", newNote);
-
       // add new note to the PouchDB
       const result = await pouchDB.addData<Note, Note>("notes", newNote);
-      console.log("result createNewNote()", result);
       setNotes((prev) => [...prev, result]);
     } catch (error) {
       console.error("Error createNewNote(): ", error);
@@ -79,8 +105,8 @@ export const NotesProvider = ({
   }, [pouchDB, auth]);
 
   const contextValue = useMemo(
-    () => ({ notes, getAllNotes, createNewNote }),
-    [notes, getAllNotes, createNewNote]
+    () => ({ notes, getAllNotes, getNoteById, createNewNote }),
+    [notes, getAllNotes, getNoteById, createNewNote]
   );
 
   return (

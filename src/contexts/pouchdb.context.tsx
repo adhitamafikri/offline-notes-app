@@ -71,6 +71,9 @@ export const PouchDBProvider = ({
       await notesDB.createIndex({
         index: dbConfig.notes.index.notesByTitle,
       });
+      await notesDB.createIndex({
+        index: dbConfig.notes.index.noteById,
+      });
       await userSettingsDB.createIndex({
         index: dbConfig.userSettings.index.findUserSettings,
       });
@@ -118,7 +121,7 @@ export const PouchDBProvider = ({
       try {
         const db = await loadPouchDB();
         const result = await db[docType].find(findOptions);
-        console.log("result", result);
+        console.log("findData() result: ", result);
         return result.docs[0] as T | null;
       } catch (error) {
         console.error("Error finding data from PouchDB: ", error);
@@ -141,7 +144,7 @@ export const PouchDBProvider = ({
       try {
         const db = await loadPouchDB();
         const result = await db[docType].find(findOptions);
-        console.log("result", result);
+        console.log("findAllData() result: ", result);
         return result.docs as T[];
       } catch (error) {
         console.error("Error finding data from PouchDB: ", error);

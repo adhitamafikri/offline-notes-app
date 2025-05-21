@@ -22,6 +22,11 @@ export const dbConfig = {
         name: "pna-notes-by-title-index",
         ddoc: "pna-notes-by-title-index-doc",
       },
+      noteById: {
+        fields: ["userId", "noteId"],
+        name: "pna-note-by-id-index",
+        ddoc: "pna-note-by-id-index-doc",
+      }
     },
   },
   userSettings: {
