@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
+import { pdbIndexes } from "@/utils/pouchdb";
 
 export interface IPouchDBContext {
   getInfo: () => Promise<void>;
@@ -15,11 +16,13 @@ export interface IPouchDBContext {
     selector: Record<string, unknown>;
     fields?: string[];
     sort?: string[];
+    use_index?: string;
   }) => Promise<T | null>;
   findAllData: <T>(findOptions: {
     selector: Record<string, unknown>;
     fields?: string[];
     sort?: string[];
+    use_index?: string;
   }) => Promise<T[]>;
   addData: <T, R>(
     data: PouchDB.Core.PutDocument<{} & T>,
@@ -45,11 +48,17 @@ export const PouchDBProvider = ({
       PouchDB.plugin((await import("pouchdb-find")).default);
       const db = new PouchDB(dbName);
       await db.createIndex({
-        index: {
-          fields: ["email", "title"],
-          name: "pwa-note-app-index",
-        },
+        index: pdbIndexes.users,
       });
+      await db.createIndex({
+        index: pdbIndexes.notes,
+      });
+      await db.createIndex({
+        index: pdbIndexes.notesByTitle,
+      });
+
+      const getIndexesResult = await db.getIndexes();
+      console.log("getIndexesResult", getIndexesResult);
       pouchDBRef.current = db;
     }
     return pouchDBRef.current as PouchDB.Database;
@@ -82,6 +91,7 @@ export const PouchDBProvider = ({
       selector: Record<string, unknown>;
       fields?: string[];
       sort?: string[];
+      use_index?: string;
     }): Promise<T | null> => {
       try {
         const db = await loadPouchDB();
@@ -101,9 +111,12 @@ export const PouchDBProvider = ({
       selector: Record<string, unknown>;
       fields?: string[];
       sort?: string[];
+      use_index?: string;
     }): Promise<T[]> => {
       try {
         const db = await loadPouchDB();
+        const getIndexesResult = await db.getIndexes();
+        console.log("getIndexesResult from findAllData()", getIndexesResult);
         const result = await db.find(findOptions);
         console.log("result", result);
         return result.docs as T[];

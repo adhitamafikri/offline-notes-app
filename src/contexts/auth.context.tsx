@@ -4,6 +4,7 @@ import { createContext, useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { pdbIndexes } from "@/utils/pouchdb";
 import { usePouchDB } from "@/hooks/use-pouchdb";
 import { User, UserProfile } from "@/models/User";
 
@@ -77,6 +78,7 @@ export const AuthProvider = ({
         // check into the IDB
         const userData = await pouchDB.findData<User>({
           selector: { email: payload.email },
+          use_index: pdbIndexes.users.ddoc,
         });
         console.log("IDB Result:", userData);
 

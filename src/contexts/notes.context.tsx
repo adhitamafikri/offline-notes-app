@@ -8,12 +8,14 @@ import {
   useState,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { pdbIndexes } from "@/utils/pouchdb";
 // import { useRouter } from "next/navigation";
 import { usePouchDB } from "@/hooks/use-pouchdb";
 import { useAuth } from "@/hooks/use-auth";
 import { Note } from "@/models/Note";
 
 export interface INotesContext {
+  notes: Note[];
   getAllNotes: () => Promise<void>;
   createNewNote: () => void;
 }
@@ -32,19 +34,21 @@ export const NotesProvider = ({
 
   const getAllNotes = useCallback(async (): Promise<void> => {
     const result = await pouchDB.findAllData<Note>({
-      selector: { docType: "note" },
+      selector: {
+        docType: "note",
+        userId: auth.getUserData()?.userId,
+        createdAt: { $exists: true },
+      },
+      sort: [{ createdAt: "desc" }],
+      use_index: [pdbIndexes.notes.ddoc, pdbIndexes.notes.name],
     });
     console.log("getAllNotes result: ", result);
     setNotes(result);
-  }, [pouchDB]);
+  }, [pouchDB, auth]);
 
   useEffect(() => {
     getAllNotes();
   }, [getAllNotes]);
-
-  useEffect(() => {
-    console.log("Our notes", notes);
-  }, [notes]);
 
   const createNewNote = useCallback(async () => {
     try {
@@ -54,6 +58,7 @@ export const NotesProvider = ({
       const newNote = new Note({
         _id: noteId,
         noteId,
+        icon: "😀",
         title: "Untitled Note",
         content: "",
         footNote: "",
@@ -65,14 +70,15 @@ export const NotesProvider = ({
       // add new note to the PouchDB
       const result = await pouchDB.addData<Note, Note>(newNote, "note");
       console.log("result createNewNote()", result);
+      setNotes((prev) => [...prev, result]);
     } catch (error) {
       console.error("Error createNewNote(): ", error);
     }
   }, [pouchDB, auth]);
 
   const contextValue = useMemo(
-    () => ({ getAllNotes, createNewNote }),
-    [getAllNotes, createNewNote]
+    () => ({ notes, getAllNotes, createNewNote }),
+    [notes, getAllNotes, createNewNote]
   );
 
   return (

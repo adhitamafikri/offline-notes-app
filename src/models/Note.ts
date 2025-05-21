@@ -24,6 +24,7 @@ export class Note {
   children?: string[] = [];
   createdAt?: string = ""; // date time in ISO string
   updatedAt?: string = ""; // date time in ISO string
+  docType: string = "note";
 
   constructor({
     _id,

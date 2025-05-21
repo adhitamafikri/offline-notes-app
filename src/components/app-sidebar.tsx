@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import {
   Sidebar,
   SidebarHeader,
@@ -10,18 +11,29 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
+  // SidebarMenuSub,
+  // SidebarMenuSubButton,
+  // SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { useNotes } from "@/hooks/use-notes";
+import { Note } from "@/models/Note";
 
 export function AppSidebar() {
   const { notes } = useNotes();
 
+  const myNotes = useMemo(() => notes.notes, [notes.notes]);
+
+  useEffect(() => {
+    console.log("this is my notes from sidebar", myNotes);
+  }, [myNotes]);
+
   const onCreateNewNote = () => {
     notes.createNewNote();
+  };
+
+  const onNoteClick = (note: Note) => {
+    console.log("You're gonna see the note: ", note);
   };
 
   return (
@@ -34,19 +46,16 @@ export function AppSidebar() {
           <SidebarGroupLabel>My Notes</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem key="menu-item-1">
-                <SidebarMenuButton>
-                  <p>My Note #1</p>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* Render Actual Note List */}
+              {notes.notes.map((note) => (
+                <SidebarMenuItem key={`note-${note._id}`}>
+                  <SidebarMenuButton onClick={() => onNoteClick(note)}>
+                    <p>{note.title}</p>
+                    <p>{note.icon}</p>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
-            <SidebarMenuSub>
-              <SidebarMenuSubItem>
-                <SidebarMenuSubButton>
-                  <p>My sub Note #1.1</p>
-                </SidebarMenuSubButton>
-              </SidebarMenuSubItem>
-            </SidebarMenuSub>
           </SidebarGroupContent>
         </SidebarGroup>
 

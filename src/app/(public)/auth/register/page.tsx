@@ -13,6 +13,7 @@ export default function Register(): React.ReactNode {
     email: "",
     name: "",
     password: "",
+    createdAt: new Date().toISOString(),
   });
 
   const onFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
