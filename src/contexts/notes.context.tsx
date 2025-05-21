@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { nanoid } from "nanoid";
 import { dbConfig } from "@/utils/pouchdb";
 // import { useRouter } from "next/navigation";
 import { usePouchDB } from "@/hooks/use-pouchdb";
@@ -38,7 +38,7 @@ export const NotesProvider = ({
         userId: auth.getUserData()?.userId,
         createdAt: { $exists: true },
       },
-      // sort: [{ createdAt: "asc" }],
+      sort: ["userId", "createdAt"],
       use_index: [
         dbConfig.notes.index.notesList.ddoc,
         dbConfig.notes.index.notesList.name,
@@ -56,7 +56,7 @@ export const NotesProvider = ({
     try {
       const userData = auth.getUserData();
       console.log("creating new note for", auth.getUserData());
-      const noteId = `note-${uuidv4()}`;
+      const noteId = `note-${nanoid()}`;
       const newNote = new Note({
         _id: noteId,
         noteId,

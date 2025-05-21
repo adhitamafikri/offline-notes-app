@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { nanoid } from "nanoid";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { dbConfig } from "@/utils/pouchdb";
@@ -45,7 +45,7 @@ export const AuthProvider = ({
       serverAction: RegisterAction
     ): Promise<void> => {
       try {
-        const id = `usr-${uuidv4()}`;
+        const id = `usr-${nanoid()}`;
         const finalPayload: RegisterRequest = {
           ...payload,
           userId: id,

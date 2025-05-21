@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarHeader,
@@ -20,6 +21,7 @@ import { useNotes } from "@/hooks/use-notes";
 import { Note } from "@/models/Note";
 
 export function AppSidebar() {
+  const router = useRouter();
   const { notes } = useNotes();
 
   const myNotes = useMemo(() => notes.notes, [notes.notes]);
@@ -34,6 +36,7 @@ export function AppSidebar() {
 
   const onNoteClick = (note: Note) => {
     console.log("You're gonna see the note: ", note);
+    router.push(`/notes/${note._id}`);
   };
 
   return (
