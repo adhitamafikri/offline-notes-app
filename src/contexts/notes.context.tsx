@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { pdbIndexes } from "@/utils/pouchdb";
+import { dbConfig } from "@/utils/pouchdb";
 // import { useRouter } from "next/navigation";
 import { usePouchDB } from "@/hooks/use-pouchdb";
 import { useAuth } from "@/hooks/use-auth";
@@ -33,14 +33,16 @@ export const NotesProvider = ({
   const [notes, setNotes] = useState<Note[]>([]);
 
   const getAllNotes = useCallback(async (): Promise<void> => {
-    const result = await pouchDB.findAllData<Note>({
+    const result = await pouchDB.findAllData<Note>("notes", {
       selector: {
-        docType: "note",
         userId: auth.getUserData()?.userId,
         createdAt: { $exists: true },
       },
-      sort: [{ createdAt: "desc" }],
-      use_index: [pdbIndexes.notes.ddoc, pdbIndexes.notes.name],
+      // sort: [{ createdAt: "asc" }],
+      use_index: [
+        dbConfig.notes.index.notesList.ddoc,
+        dbConfig.notes.index.notesList.name,
+      ],
     });
     console.log("getAllNotes result: ", result);
     setNotes(result);
@@ -68,7 +70,7 @@ export const NotesProvider = ({
       console.log("onCreateNewNote click: ", newNote);
 
       // add new note to the PouchDB
-      const result = await pouchDB.addData<Note, Note>(newNote, "note");
+      const result = await pouchDB.addData<Note, Note>("notes", newNote);
       console.log("result createNewNote()", result);
       setNotes((prev) => [...prev, result]);
     } catch (error) {

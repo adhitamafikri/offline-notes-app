@@ -4,7 +4,7 @@ import { createContext, useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { pdbIndexes } from "@/utils/pouchdb";
+import { dbConfig } from "@/utils/pouchdb";
 import { usePouchDB } from "@/hooks/use-pouchdb";
 import { User, UserProfile } from "@/models/User";
 
@@ -53,7 +53,7 @@ export const AuthProvider = ({
         };
 
         // store into the IDB
-        await pouchDB.addData<RegisterRequest, User>(finalPayload, "user");
+        await pouchDB.addData<RegisterRequest, User>("users", finalPayload);
         // send to backend API
         await serverAction(finalPayload);
 
@@ -76,9 +76,12 @@ export const AuthProvider = ({
     ): Promise<void> => {
       try {
         // check into the IDB
-        const userData = await pouchDB.findData<User>({
+        const userData = await pouchDB.findData<User>("users", {
           selector: { email: payload.email },
-          use_index: pdbIndexes.users.ddoc,
+          use_index: [
+            dbConfig.users.index.findUser.ddoc,
+            dbConfig.users.index.findUser.name,
+          ],
         });
         console.log("IDB Result:", userData);
 

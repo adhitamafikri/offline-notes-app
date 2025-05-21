@@ -7,26 +7,33 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { pdbIndexes } from "@/utils/pouchdb";
+import { dbConfig } from "@/utils/pouchdb";
+
+export type DocType = "users" | "notes" | "userSettings";
 
 export interface IPouchDBContext {
   getInfo: () => Promise<void>;
-  getData: <T>(_id: string) => Promise<T>;
-  findData: <T>(findOptions: {
-    selector: Record<string, unknown>;
-    fields?: string[];
-    sort?: string[];
-    use_index?: string;
-  }) => Promise<T | null>;
-  findAllData: <T>(findOptions: {
-    selector: Record<string, unknown>;
-    fields?: string[];
-    sort?: string[];
-    use_index?: string;
-  }) => Promise<T[]>;
+  findData: <T>(
+    docType: DocType,
+    findOptions: {
+      selector: Record<string, unknown>;
+      fields?: string[];
+      sort?: string[];
+      use_index?: string | [string, string];
+    }
+  ) => Promise<T | null>;
+  findAllData: <T>(
+    docType: DocType,
+    findOptions: {
+      selector: Record<string, unknown>;
+      fields?: string[];
+      sort?: string[];
+      use_index?: string | [string, string];
+    }
+  ) => Promise<T[]>;
   addData: <T, R>(
-    data: PouchDB.Core.PutDocument<{} & T>,
-    docType: "user" | "note"
+    docType: DocType,
+    data: PouchDB.Core.PutDocument<{} & T>
   ) => Promise<R>;
 }
 
@@ -34,34 +41,50 @@ export const PouchDBContext = createContext<IPouchDBContext | undefined>(
   undefined
 );
 
-const dbName: string = process.env.NEXT_PUBLIC_POUCHDB_NAME || "pwa-notes-app";
 export const PouchDBProvider = ({
   children,
 }: {
   children: Readonly<React.ReactNode>;
 }) => {
-  const pouchDBRef = useRef<PouchDB.Database | null>(null);
+  const usersDBRef = useRef<PouchDB.Database | null>(null);
+  const notesDBRef = useRef<PouchDB.Database | null>(null);
+  const userSettingsDBRef = useRef<PouchDB.Database | null>(null);
 
   const loadPouchDB = async () => {
-    if (!pouchDBRef.current) {
+    if (
+      !usersDBRef.current ||
+      !notesDBRef.current ||
+      !userSettingsDBRef.current
+    ) {
       const PouchDB = (await import("pouchdb")).default;
       PouchDB.plugin((await import("pouchdb-find")).default);
-      const db = new PouchDB(dbName);
-      await db.createIndex({
-        index: pdbIndexes.users,
+
+      const usersDB = new PouchDB(dbConfig.users.name);
+      const notesDB = new PouchDB(dbConfig.notes.name);
+      const userSettingsDB = new PouchDB(dbConfig.userSettings.name);
+      await usersDB.createIndex({
+        index: dbConfig.users.index.findUser,
       });
-      await db.createIndex({
-        index: pdbIndexes.notes,
+      await notesDB.createIndex({
+        index: dbConfig.notes.index.notesList,
       });
-      await db.createIndex({
-        index: pdbIndexes.notesByTitle,
+      await notesDB.createIndex({
+        index: dbConfig.notes.index.notesByTitle,
+      });
+      await userSettingsDB.createIndex({
+        index: dbConfig.userSettings.index.findUserSettings,
       });
 
-      const getIndexesResult = await db.getIndexes();
-      console.log("getIndexesResult", getIndexesResult);
-      pouchDBRef.current = db;
+      usersDBRef.current = usersDB;
+      notesDBRef.current = notesDB;
+      userSettingsDBRef.current = userSettingsDB;
     }
-    return pouchDBRef.current as PouchDB.Database;
+
+    return {
+      users: usersDBRef.current as PouchDB.Database,
+      notes: notesDBRef.current as PouchDB.Database,
+      userSettings: userSettingsDBRef.current as PouchDB.Database,
+    };
   };
 
   // create a db in the indexedDB
@@ -71,31 +94,30 @@ export const PouchDBProvider = ({
 
   const getInfo = useCallback(async () => {
     const db = await loadPouchDB();
-    const info = await db.info();
-    console.log("db info:", info);
-  }, []);
-
-  const getData = useCallback(async <T,>(_id: string): Promise<T> => {
-    try {
-      const db = await loadPouchDB();
-      const result = await db.get<T>(_id);
-      return result as T;
-    } catch (error) {
-      console.error("Error getting PouchDB info", error);
-      throw error;
-    }
+    const usersDBInfo = await db.users.info();
+    const notesDBInfo = await db.notes.info();
+    const userSettingsDBInfo = await db.userSettings.info();
+    console.log("Here's the DB info: ");
+    console.table({
+      usersDB: usersDBInfo,
+      notesDB: notesDBInfo,
+      userSettingsDB: userSettingsDBInfo,
+    });
   }, []);
 
   const findData = useCallback(
-    async <T,>(findOptions: {
-      selector: Record<string, unknown>;
-      fields?: string[];
-      sort?: string[];
-      use_index?: string;
-    }): Promise<T | null> => {
+    async <T,>(
+      docType: DocType,
+      findOptions: {
+        selector: Record<string, unknown>;
+        fields?: string[];
+        sort?: string[];
+        use_index?: string | [string, string];
+      }
+    ): Promise<T | null> => {
       try {
         const db = await loadPouchDB();
-        const result = await db.find(findOptions);
+        const result = await db[docType].find(findOptions);
         console.log("result", result);
         return result.docs[0] as T | null;
       } catch (error) {
@@ -107,17 +129,18 @@ export const PouchDBProvider = ({
   );
 
   const findAllData = useCallback(
-    async <T,>(findOptions: {
-      selector: Record<string, unknown>;
-      fields?: string[];
-      sort?: string[];
-      use_index?: string;
-    }): Promise<T[]> => {
+    async <T,>(
+      docType: DocType,
+      findOptions: {
+        selector: Record<string, unknown>;
+        fields?: string[];
+        sort?: string[];
+        use_index?: string | [string, string];
+      }
+    ): Promise<T[]> => {
       try {
         const db = await loadPouchDB();
-        const getIndexesResult = await db.getIndexes();
-        console.log("getIndexesResult from findAllData()", getIndexesResult);
-        const result = await db.find(findOptions);
+        const result = await db[docType].find(findOptions);
         console.log("result", result);
         return result.docs as T[];
       } catch (error) {
@@ -130,13 +153,13 @@ export const PouchDBProvider = ({
 
   const addData = useCallback(
     async <T, R>(
-      data: PouchDB.Core.PutDocument<{} & T>,
-      docType: "user" | "note"
+      docType: DocType,
+      data: PouchDB.Core.PutDocument<{} & T>
     ): Promise<R> => {
       try {
         const db = await loadPouchDB();
-        const putResult = await db.put<T>({ ...data, docType });
-        const getResult = await db.get(putResult.id);
+        const putResult = await db[docType].put<T>({ ...data, docType });
+        const getResult = await db[docType].get(putResult.id);
         return getResult as R;
       } catch (error) {
         console.error("Error adding data into PouchDB: ", error);
@@ -147,8 +170,8 @@ export const PouchDBProvider = ({
   );
 
   const contextValue = useMemo(
-    () => ({ getInfo, getData, findData, findAllData, addData }),
-    [getInfo, getData, findData, findAllData, addData]
+    () => ({ getInfo, findData, findAllData, addData }),
+    [getInfo, findData, findAllData, addData]
   );
 
   return (
