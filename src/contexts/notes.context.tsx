@@ -8,8 +8,8 @@ import {
   useState,
 } from "react";
 import { nanoid } from "nanoid";
+import { toast } from "sonner";
 import { dbConfig } from "@/utils/pouchdb";
-// import { useRouter } from "next/navigation";
 import { usePouchDB } from "@/hooks/use-pouchdb";
 import { useAuth } from "@/hooks/use-auth";
 import { Note } from "@/models/Note";
@@ -18,7 +18,8 @@ export interface INotesContext {
   notes: Note[];
   getAllNotes: () => Promise<void>;
   getNoteById: (noteId: string) => Promise<Note | null>;
-  createNewNote: () => void;
+  createNewNote: () => Promise<void>;
+  updateNote: (note: Note) => Promise<void>;
 }
 
 export const NotesContext = createContext<INotesContext | undefined>(undefined);
@@ -78,13 +79,17 @@ export const NotesProvider = ({
 
       return result;
     },
-    [auth]
+    [auth, pouchDB]
   );
 
   const createNewNote = useCallback(async () => {
     try {
       const userData = auth.getUserData();
-      console.log("creating new note for", auth.getUserData());
+      if (!userData) {
+        toast.error("User is not logged in");
+        throw new Error("User is not logged in");
+      }
+
       const noteId = `note-${nanoid()}`;
       const newNote = new Note({
         _id: noteId,
@@ -99,14 +104,41 @@ export const NotesProvider = ({
       // add new note to the PouchDB
       const result = await pouchDB.addData<Note, Note>("notes", newNote);
       setNotes((prev) => [...prev, result]);
+      toast.success("Successfully Created Note");
     } catch (error) {
       console.error("Error createNewNote(): ", error);
     }
   }, [pouchDB, auth]);
 
+  const updateNote = useCallback(
+    async (note: Note) => {
+      try {
+        const userData = auth.getUserData();
+        if (!userData) {
+          toast.error("User is not logged in");
+          throw new Error("User is not logged in");
+        }
+
+        const newNote = new Note({
+          ...note,
+        });
+
+        // update note in the PouchDB
+        const result = await pouchDB.updateData<Note, Note>("notes", newNote);
+        setNotes((prev) =>
+          prev.map((item) => (item.noteId === result.noteId ? result : item))
+        );
+        toast.success("Successfully Updated Note");
+      } catch (error) {
+        console.error("Error updateNote(): ", error);
+      }
+    },
+    [pouchDB, auth]
+  );
+
   const contextValue = useMemo(
-    () => ({ notes, getAllNotes, getNoteById, createNewNote }),
-    [notes, getAllNotes, getNoteById, createNewNote]
+    () => ({ notes, getAllNotes, getNoteById, createNewNote, updateNote }),
+    [notes, getAllNotes, getNoteById, createNewNote, updateNote]
   );
 
   return (

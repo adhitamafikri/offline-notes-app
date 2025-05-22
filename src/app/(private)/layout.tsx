@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PouchDBProvider } from "@/contexts/pouchdb.context";
@@ -30,9 +31,12 @@ export default async function PrivateLayout({
                 {children}
               </div>
             </SidebarProvider>
+            
           </NotesProvider>
         </AuthProvider>
       </PouchDBProvider>
+
+      <Toaster />
     </div>
   );
 }

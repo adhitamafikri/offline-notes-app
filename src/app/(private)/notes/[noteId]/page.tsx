@@ -69,6 +69,7 @@ export default function EditNote(): React.ReactNode {
 
   const onSaveNote = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    await notes.updateNote(formData);
   };
 
   return (

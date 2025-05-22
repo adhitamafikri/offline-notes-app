@@ -35,6 +35,10 @@ export interface IPouchDBContext {
     docType: DocType,
     data: PouchDB.Core.PutDocument<{} & T>
   ) => Promise<R>;
+  updateData: <T, R>(
+    docType: DocType,
+    data: PouchDB.Core.PutDocument<{} & T>
+  ) => Promise<R>;
 }
 
 export const PouchDBContext = createContext<IPouchDBContext | undefined>(
@@ -161,7 +165,7 @@ export const PouchDBProvider = ({
     ): Promise<R> => {
       try {
         const db = await loadPouchDB();
-        const putResult = await db[docType].put<T>({ ...data, docType });
+        const putResult = await db[docType].put<T>({ ...data });
         const getResult = await db[docType].get(putResult.id);
         return getResult as R;
       } catch (error) {
@@ -172,9 +176,28 @@ export const PouchDBProvider = ({
     []
   );
 
+  const updateData = useCallback(
+    async <T, R>(
+      docType: DocType,
+      data: PouchDB.Core.PutDocument<{} & T>
+    ): Promise<R> => {
+      try {
+        const db = await loadPouchDB();
+        const currentData = await db[docType].get(data._id || "");
+        const putResult = await db[docType].put<T>({ ...currentData, ...data });
+        const updatedResult = await db[docType].get(putResult.id);
+        return updatedResult as R;
+      } catch (error) {
+        console.error("Error adding data into PouchDB: ", error);
+        throw error;
+      }
+    },
+    []
+  );
+
   const contextValue = useMemo(
-    () => ({ getInfo, findData, findAllData, addData }),
-    [getInfo, findData, findAllData, addData]
+    () => ({ getInfo, findData, findAllData, addData, updateData }),
+    [getInfo, findData, findAllData, addData, updateData]
   );
 
   return (
