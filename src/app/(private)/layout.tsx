@@ -1,11 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { PouchDBProvider } from "@/contexts/pouchdb.context";
-import { AuthProvider } from "@/contexts/auth.context";
-import { NotesProvider } from "@/contexts/notes.context";
+import LayoutSection from "./layout-section";
 
 export default async function PrivateLayout({
   children,
@@ -17,26 +12,5 @@ export default async function PrivateLayout({
     return redirect("/auth/login");
   }
 
-  return (
-    <div id="private-layout">
-      <PouchDBProvider>
-        <AuthProvider>
-          <NotesProvider>
-            <SidebarProvider>
-              <div className="page-sidebar">
-                <AppSidebar />
-              </div>
-              <div className="page-content w-full">
-                <SidebarTrigger />
-                {children}
-              </div>
-            </SidebarProvider>
-            
-          </NotesProvider>
-        </AuthProvider>
-      </PouchDBProvider>
-
-      <Toaster />
-    </div>
-  );
+  return <LayoutSection>{children}</LayoutSection>;
 }
