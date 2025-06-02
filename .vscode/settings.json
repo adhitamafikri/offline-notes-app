@@ -1,5 +1,5 @@
 {
     "debug.javascript.defaultRuntimeExecutable": {
-        "pwa-node": "/home/dev/.local/share/mise/shims/node"
+        "pwa-node": "/home/adhit/.local/share/mise/shims/node"
     }
 }
