@@ -35,7 +35,7 @@ export async function sendNotification(message: string) {
       JSON.stringify({
         title: "Test Notification",
         body: message,
-        icon: "/icon.png",
+        icon: "/icon1.png",
       })
     );
     return { success: true };

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { urlBase64ToUint8Array } from "@/utils/url";
+import { Button } from "@/components/ui/button";
 import {
   subscribeUser,
   unsubscribeUser,
@@ -62,24 +63,24 @@ export default function PushNotificationManager() {
   }
 
   return (
-    <div>
+    <div className="fixed bottom-4 right-4 z-50 bg-white shadow-lg rounded-lg p-4">
       <h3>Push Notifications</h3>
       {subscription ? (
         <>
           <p>You are subscribed to push notifications.</p>
-          <button onClick={unsubscribeFromPush}>Unsubscribe</button>
+          <Button onClick={unsubscribeFromPush}>Unsubscribe</Button>
           <input
             type="text"
             placeholder="Enter notification message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <button onClick={sendTestNotification}>Send Test</button>
+          <Button onClick={sendTestNotification}>Send Test</Button>
         </>
       ) : (
         <>
           <p>You are not subscribed to push notifications.</p>
-          <button onClick={subscribeToPush}>Subscribe</button>
+          <Button onClick={subscribeToPush}>Subscribe</Button>
         </>
       )}
     </div>

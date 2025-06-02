@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -H offline-notes-app.localhost",
+    "dev:https": "next dev --turbopack --experimental-https -H offline-notes-app.localhost",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

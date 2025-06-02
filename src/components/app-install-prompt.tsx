@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import PushNotificationManager from "./push-notification-manager";
+import { Button } from "@/components/ui/button";
 
 function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
@@ -22,7 +23,7 @@ function InstallPrompt() {
   return (
     <div>
       <h3>Install App</h3>
-      <button>Add to Home Screen</button>
+      <Button>Add to Home Screen</Button>
       {isIOS && (
         <p>
           To install this app on your iOS device, tap the share button
