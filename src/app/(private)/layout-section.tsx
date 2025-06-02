@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { AppInstallPrompt } from "@/components/app-install-prompt";
 import { PouchDBProvider } from "@/contexts/pouchdb.context";
 import { NetworkStatusProvider } from "@/contexts/network-status.context";
 import { AuthProvider } from "@/contexts/auth.context";
@@ -35,6 +36,7 @@ export default function LayoutSection({
                 <div className="page-content w-full">
                   <SidebarTrigger />
                   {children}
+                  <AppInstallPrompt />
                 </div>
               </SidebarProvider>
             </NotesProvider>
