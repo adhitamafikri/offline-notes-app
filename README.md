@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Offline Notes PWA
 
-## Getting Started
+This is a simple learning project with NextJS
 
-First, run the development server:
+## Running Projects
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Follow the instructions below to run the project and register the Service Worker properly in your local machine.
+
+### MacOS/Linux
+
+- Simply run `npm run dev:https`
+- a local certificates directory will be generated in the project
+- Read More at [`nextjs-using-https-during-development`](https://nextjs.org/docs/app/api-reference/cli/next#using-https-during-development)
+
+### Windows with WSL
+
+- Install `mkcert` with chocolatey on the Windows filesystem (`/mnt/<drive>/...`) using Windows terminal
+- Run `mkcert -install` to Install the local CA in the system trust store.
+- Generate https key and https cert for your particular project by running `mkcert <local project host>` on the selected directory in your Windows filesystem using Windows terminal
+- Open new tab on your terminal and execute `wsl`
+- Navigate to your project in the `wsl` filesystem
+- Run the project by executing this command
+
+```zsh
+npx next dev --turbopack --experimental-https -H <local project host> --experimental-https-key <path to https key in windows filesystem> --experimental-https-cert <path to https cert in windows filesystem>
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
